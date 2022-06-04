@@ -25,13 +25,13 @@ void AIPlayer::think(color & c_piece, int & id_piece, int & dice) const{
 
     switch(id){
         case 0:
-            //thinkAleatorio(c_piece,id_piece,dice);
+            thinkAleatorio(c_piece,id_piece,dice);
             break;
         case 1:
-            //thinkAleatorioMasInteligente(c_piece,id_piece,dice);
+            thinkAleatorioMasInteligente(c_piece,id_piece,dice);
             break;
         case 2:
-            //thinkFichaMasAdelantada(c_piece,id_piece,dice);
+            thinkFichaMasAdelantada(c_piece,id_piece,dice);
             break;
         case 3:
             //thinkMejorOpcion(c_piece,id_piece,dice);
@@ -143,6 +143,33 @@ void AIPlayer::thinkAleatorioMasInteligente(color & c_piece, int & id_piece, int
 
         //Muevo una ficha al azar entre las que puedo mover
         id_piece = current_pieces[rand()%current_pieces.size()];
+    }
+}
+
+void AIPlayer::thinkFichaMasAdelantada(color & c_piece, int & id_piece, int & dice) const{
+
+    thinkAleatorioMasInteligente(c_piece,id_piece,dice);
+
+    vector<int> current_pieces = actual->getAvailablePieces(c_piece,dice);
+
+    int id_ficha_mas_adelantada = -1;
+    int min_distancia_meta = 9999;
+    for(int i = 0; i < current_pieces.size(); i++){
+
+        //distanceToGoal(color, id) de vuelve la distancia entre la ficha [id] y la meta del color que le indique
+        int distancia_meta = actual->distanceToGoal(c_piece,current_pieces[i]);
+        
+        if( distancia_meta < min_distancia_meta){
+            min_distancia_meta = distancia_meta;
+            id_ficha_mas_adelantada = current_pieces[i];
+        }
+    }
+
+    if(id_ficha_mas_adelantada == -1){
+        id_piece = SKIP_TURN;
+    }
+    else{
+        id_piece = id_ficha_mas_adelantada;
     }
 }
 
