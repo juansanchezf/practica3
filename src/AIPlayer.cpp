@@ -34,7 +34,7 @@ void AIPlayer::think(color & c_piece, int & id_piece, int & dice) const{
             thinkFichaMasAdelantada(c_piece,id_piece,dice);
             break;
         case 3:
-            //thinkMejorOpcion(c_piece,id_piece,dice);
+            thinkMejorOpcion(c_piece,id_piece,dice);
             break;
     }
 
@@ -170,6 +170,40 @@ void AIPlayer::thinkFichaMasAdelantada(color & c_piece, int & id_piece, int & di
     }
     else{
         id_piece = id_ficha_mas_adelantada;
+    }
+}
+
+void AIPlayer::thinkMejorOpcion(color & c_piece, int &id_piece, int &dice) const{
+    //En la primera iteración son todos none porque no ha habido un movimiento anterior.
+    color last_c_piece = none;
+    int last_id_piece = -1;
+    int last_dice = -1;
+
+    //Genero un hijo a partir del nodo actual
+    Parchis siguiente_hijo = actual->generateNextMove(last_c_piece, last_id_piece, last_dice);
+
+    bool me_quedo_con_esta_accion = false;
+
+    while(!(siguiente_hijo == *actual) && !me_quedo_con_esta_accion){
+        //Si el siguiente movimiento es comerse alguno o es llegar a la meta me quedo con el
+        //Si el siguiente movimiento significa terminar el juego y que yo sea el ganador también me quedo con el
+        if(siguiente_hijo.isEatingMove() or siguiente_hijo.isGoalMove() or
+        (siguiente_hijo.gameOver() and siguiente_hijo.getWinner() == this->jugador)){
+            me_quedo_con_esta_accion = true;
+        }
+        else{
+            //Genero otro hijo
+            siguiente_hijo = actual->generateNextMove(last_c_piece,last_id_piece,last_dice);
+        }
+    }
+
+    if(me_quedo_con_esta_accion){
+        c_piece = last_c_piece;
+        id_piece = last_id_piece;
+        dice = last_dice;
+    }
+    else{
+        thinkFichaMasAdelantada(c_piece,id_piece,dice);
     }
 }
 
