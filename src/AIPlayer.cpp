@@ -23,7 +23,7 @@ bool AIPlayer::move(){
 
 void AIPlayer::think(color & c_piece, int & id_piece, int & dice) const{
 
-    switch(id){
+    /*switch(id){
         case 0:
             thinkAleatorio(c_piece,id_piece,dice);
             break;
@@ -36,10 +36,8 @@ void AIPlayer::think(color & c_piece, int & id_piece, int & dice) const{
         case 3:
             thinkMejorOpcion(c_piece,id_piece,dice);
             break;
-    }
+    }*/
 
-
-    /*
     // El siguiente código se proporciona como sugerencia para iniciar la implementación del agente.
 
     double valor; // Almacena el valor con el que se etiqueta el estado tras el proceso de busqueda.
@@ -56,15 +54,13 @@ void AIPlayer::think(color & c_piece, int & id_piece, int & dice) const{
             valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, ValoracionTest);
             break;
         case 1:
-            valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, MiValoracion1);
+            //valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, MiValoracion1);
             break;
         case 2:
-            valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, MiValoracion2);
+            //valor = Poda_AlfaBeta(*actual, jugador, 0, PROFUNDIDAD_ALFABETA, c_piece, id_piece, dice, alpha, beta, MiValoracion2);
             break;
     }
     cout << "Valor MiniMax: " << valor << "  Accion: " << str(c_piece) << " " << id_piece << " " << dice << endl;
-
-    */
 }
 
 void AIPlayer::thinkAleatorio(color &c_piece, int &id_piece, int &dice) const{
@@ -211,8 +207,6 @@ void AIPlayer::thinkMejorOpcion(color & c_piece, int &id_piece, int &dice) const
 double AIPlayer::ValoracionTest(const Parchis &estado, int jugador)
 {
     // Heurística de prueba proporcionada para validar el funcionamiento del algoritmo de búsqueda.
-
-
     int ganador = estado.getWinner();
     int oponente = (jugador + 1) % 2;
 
@@ -278,3 +272,69 @@ double AIPlayer::ValoracionTest(const Parchis &estado, int jugador)
     }
 }
 
+
+double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int profundidad_max, color &c_piece, int &id_piece, int &dice, double alpha, double beta, double (*heuristic)(const Parchis &, int)) const{
+    //En la primera iteración son todos none porque no ha habido un movimiento anterior.
+    color last_c_piece = none;
+    int last_id_piece = -1;
+    int last_dice = -1;
+
+    color c_piece_alt = none;
+    int id_piece_alt = -1;
+    int dice_alt = -1;
+
+    if(profundidad==profundidad_max || actual.gameOver()){
+        return ValoracionTest(actual, jugador);
+    }
+    else{
+        Parchis hijo = actual.generateNextMove(last_c_piece,last_id_piece,last_dice);
+
+        if(jugador == actual.getCurrentPlayerId()){ //SI estamos en el nodo MAX
+            while(!(hijo == actual)){
+                double branchVal = Poda_AlfaBeta(actual,jugador,profundidad+1,profundidad_max,c_piece_alt,id_piece_alt,dice_alt,alpha,beta, ValoracionTest);
+
+                if(branchVal > alpha){
+                    alpha = branchVal;
+                    c_piece = c_piece_alt;
+                    id_piece = id_piece_alt;
+                    dice = dice_alt;
+                }
+
+                if(alpha >= beta){
+                    break;
+                }
+
+                hijo = actual.generateNextMove(c_piece_alt,id_piece_alt,dice_alt);
+
+            }
+
+            return alpha;
+        }
+        else{
+            while(!(hijo == actual)){
+                double branchVal = Poda_AlfaBeta(actual,jugador,profundidad+1,profundidad_max,c_piece_alt,id_piece_alt,dice_alt,alpha,beta, ValoracionTest);
+
+                if(branchVal < beta){
+                    beta = branchVal;
+                    c_piece = c_piece_alt;
+                    id_piece = id_piece_alt;
+                    dice = dice_alt;
+                }
+
+                if(alpha >= beta){
+                    break;
+                }
+
+                hijo = actual.generateNextMove(c_piece_alt,id_piece_alt,dice_alt);
+
+            }
+
+            return beta;
+        }
+    }
+    
+    
+
+
+
+}
