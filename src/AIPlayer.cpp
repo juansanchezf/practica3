@@ -273,68 +273,119 @@ double AIPlayer::ValoracionTest(const Parchis &estado, int jugador)
 }
 
 
-double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int profundidad_max, color &c_piece, int &id_piece, int &dice, double alpha, double beta, double (*heuristic)(const Parchis &, int)) const{
-    //En la primera iteración son todos none porque no ha habido un movimiento anterior.
+double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int PROFUNDIDADMAX, color &c_piece, int &id_piece, int &dice, double alpha, double beta, double (*heuristic)(const Parchis &, int)){    //En la primera iteración son todos none porque no ha habido un movimiento anterior.
     color last_c_piece = none;
     int last_id_piece = -1;
     int last_dice = -1;
 
-    color c_piece_alt = none;
-    int id_piece_alt = -1;
-    int dice_alt = -1;
+    double branchVal;
 
-    if(profundidad==profundidad_max || actual.gameOver()){
-        return ValoracionTest(actual, jugador);
+    if(profundidad== PROFUNDIDADMAX || actual.gameOver()){
+        return heuristic(actual,jugador);
     }
-    else{
-        Parchis hijo = actual.generateNextMove(last_c_piece,last_id_piece,last_dice);
+    else{ //Hijos
+
+        Parchis hijo = actual.generateNextMove(last_c_piece,last_id_piece,last_dice); //genero un hijo
 
         if(jugador == actual.getCurrentPlayerId()){ //SI estamos en el nodo MAX
-            while(!(hijo == actual)){
-                double branchVal = Poda_AlfaBeta(actual,jugador,profundidad+1,profundidad_max,c_piece_alt,id_piece_alt,dice_alt,alpha,beta, ValoracionTest);
+            while(!(hijo == actual)){   //Cuando ha explorado todos los hijos vuelve al padre
+
+                branchVal = Poda_AlfaBeta(actual,jugador,profundidad+1,PROFUNDIDADMAX,last_c_piece,last_id_piece,last_dice,alpha,beta, ValoracionTest);
 
                 if(branchVal > alpha){
                     alpha = branchVal;
-                    c_piece = c_piece_alt;
-                    id_piece = id_piece_alt;
-                    dice = dice_alt;
+                    if(profundidad == 0){
+                        c_piece = last_c_piece;
+                        id_piece = last_id_piece;
+                        dice = last_dice;
+                    }
                 }
 
                 if(alpha >= beta){
                     break;
                 }
 
-                hijo = actual.generateNextMove(c_piece_alt,id_piece_alt,dice_alt);
+                hijo = actual.generateNextMoveDescending(c_piece,id_piece,dice);
 
             }
 
             return alpha;
         }
-        else{
+        else{   //Nodo min
             while(!(hijo == actual)){
-                double branchVal = Poda_AlfaBeta(actual,jugador,profundidad+1,profundidad_max,c_piece_alt,id_piece_alt,dice_alt,alpha,beta, ValoracionTest);
+
+                branchVal = Poda_AlfaBeta(actual,jugador,profundidad+1,PROFUNDIDADMAX,last_c_piece,last_id_piece,last_dice,alpha,beta, ValoracionTest);
 
                 if(branchVal < beta){
                     beta = branchVal;
-                    c_piece = c_piece_alt;
-                    id_piece = id_piece_alt;
-                    dice = dice_alt;
                 }
 
                 if(alpha >= beta){
                     break;
                 }
 
-                hijo = actual.generateNextMove(c_piece_alt,id_piece_alt,dice_alt);
+                hijo = actual.generateNextMoveDescending(last_c_piece,last_id_piece,last_id_piece);
 
             }
 
             return beta;
         }
     }
-    
-    
-
-
-
 }
+/*
+double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int profundidad_max, color &c_piece, int &id_piece, int &dice, double alpha, double beta, double (*heuristic)(const Parchis &, int)) const{
+    color c_piece_anterior = none;
+    int id_piece_anterior = -1;
+    int dice_anterior = -1;
+
+    double aux;
+
+    if(profundidad == profundidad_max || actual.gameOver()){
+        return ValoracionTest(actual,jugador);
+    }
+    else{//Recorremos los hijos
+
+        Parchis hijo = actual.generateNextMove(c_piece_anterior,id_piece_anterior,dice_anterior);
+
+        if(jugador == actual.getCurrentPlayerId()){//Nodo max
+            while(!(hijo == actual)){
+                aux = Poda_AlfaBeta(hijo,jugador,profundidad+1,profundidad_max,c_piece_anterior,id_piece_anterior,dice_anterior,alpha,beta, ValoracionTest);
+                
+                if(aux > alpha){
+                    alpha = aux;
+                    c_piece = c_piece_anterior;
+                    id_piece = id_piece_anterior;
+                    dice = dice_anterior;
+                }
+
+                if(beta<=alpha){
+                    break;
+                }
+
+                hijo = actual.generateNextMove(c_piece,id_piece,dice);
+            }
+
+            return alpha;
+        }
+        else{   //Nodo min
+            while(!(hijo == actual)){
+                aux = Poda_AlfaBeta(hijo,jugador,profundidad+1,profundidad_max,c_piece_anterior,id_piece_anterior,dice_anterior,alpha,beta,ValoracionTest);
+
+                if(aux < beta){
+                    beta = aux;
+                    c_piece = c_piece_anterior;
+                    id_piece = id_piece_anterior;
+                    dice = dice_anterior;
+                }
+
+                if(beta<=alpha){
+                    break;
+                }
+
+                hijo = actual.generateNextMove(c_piece,id_piece,dice);
+            }
+
+            return beta;
+        }
+    }
+}*/
