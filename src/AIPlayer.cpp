@@ -272,6 +272,74 @@ double AIPlayer::ValoracionTest(const Parchis &estado, int jugador)
     }
 }
 
+double AIPlayer::Heuristica1(const Parchis &estado, int jugador)
+{
+    // Heurística de prueba proporcionada para validar el funcionamiento del algoritmo de búsqueda.
+    int ganador = estado.getWinner();
+    int oponente = (jugador + 1) % 2;
+
+    // Si hay un ganador, devuelvo más/menos infinito, según si he ganado yo o el oponente.
+    if (ganador == jugador)
+    {
+        return gana;
+    }
+    else if (ganador == oponente)
+    {
+        return pierde;
+    }
+    else
+    {
+        // Colores que juega mi jugador y colores del oponente
+        vector<color> my_colors = estado.getPlayerColors(jugador);
+        vector<color> op_colors = estado.getPlayerColors(oponente);
+
+        // Recorro todas las fichas de mi jugador
+        int puntuacion_jugador = 0;
+        // Recorro colores de mi jugador.
+        for (int i = 0; i < my_colors.size(); i++)
+        {
+            color c = my_colors[i];
+            // Recorro las fichas de ese color.
+            for (int j = 0; j < num_pieces; j++)
+            {
+                // Valoro positivamente que la ficha esté en casilla segura o meta.
+                if (estado.isSafePiece(c, j))
+                {
+                    puntuacion_jugador++;
+                }
+                else if (estado.getBoard().getPiece(c, j).type == goal)
+                {
+                    puntuacion_jugador += 5;
+                }
+            }
+        }
+
+        // Recorro todas las fichas del oponente
+        int puntuacion_oponente = 0;
+        // Recorro colores del oponente.
+        for (int i = 0; i < op_colors.size(); i++)
+        {
+            color c = op_colors[i];
+            // Recorro las fichas de ese color.
+            for (int j = 0; j < num_pieces; j++)
+            {
+                if (estado.isSafePiece(c, j))
+                {
+                    // Valoro negativamente que la ficha esté en casilla segura o meta.
+                    puntuacion_oponente++;
+                }
+                else if (estado.getBoard().getPiece(c, j).type == goal)
+                {
+                    puntuacion_oponente += 5;
+                }
+            }
+        }
+
+        // Devuelvo la puntuación de mi jugador menos la puntuación del oponente.
+        return puntuacion_jugador - puntuacion_oponente;
+    }
+}
+
 
 double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int PROFUNDIDADMAX, color &c_piece, int &id_piece, int &dice, double alpha, double beta, double (*heuristic)(const Parchis &, int)){    //En la primera iteración son todos none porque no ha habido un movimiento anterior.
     color last_c_piece = none;
@@ -327,65 +395,7 @@ double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundid
                 hijo = actual.generateNextMoveDescending(last_c_piece,last_id_piece,last_id_piece);
 
             }
-
             return beta;
         }
     }
 }
-/*
-double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int profundidad_max, color &c_piece, int &id_piece, int &dice, double alpha, double beta, double (*heuristic)(const Parchis &, int)) const{
-    color c_piece_anterior = none;
-    int id_piece_anterior = -1;
-    int dice_anterior = -1;
-
-    double aux;
-
-    if(profundidad == profundidad_max || actual.gameOver()){
-        return ValoracionTest(actual,jugador);
-    }
-    else{//Recorremos los hijos
-
-        Parchis hijo = actual.generateNextMove(c_piece_anterior,id_piece_anterior,dice_anterior);
-
-        if(jugador == actual.getCurrentPlayerId()){//Nodo max
-            while(!(hijo == actual)){
-                aux = Poda_AlfaBeta(hijo,jugador,profundidad+1,profundidad_max,c_piece_anterior,id_piece_anterior,dice_anterior,alpha,beta, ValoracionTest);
-                
-                if(aux > alpha){
-                    alpha = aux;
-                    c_piece = c_piece_anterior;
-                    id_piece = id_piece_anterior;
-                    dice = dice_anterior;
-                }
-
-                if(beta<=alpha){
-                    break;
-                }
-
-                hijo = actual.generateNextMove(c_piece,id_piece,dice);
-            }
-
-            return alpha;
-        }
-        else{   //Nodo min
-            while(!(hijo == actual)){
-                aux = Poda_AlfaBeta(hijo,jugador,profundidad+1,profundidad_max,c_piece_anterior,id_piece_anterior,dice_anterior,alpha,beta,ValoracionTest);
-
-                if(aux < beta){
-                    beta = aux;
-                    c_piece = c_piece_anterior;
-                    id_piece = id_piece_anterior;
-                    dice = dice_anterior;
-                }
-
-                if(beta<=alpha){
-                    break;
-                }
-
-                hijo = actual.generateNextMove(c_piece,id_piece,dice);
-            }
-
-            return beta;
-        }
-    }
-}*/
