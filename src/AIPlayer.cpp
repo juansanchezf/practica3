@@ -220,7 +220,7 @@ double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundid
         if(jugador == actual.getCurrentPlayerId()){ //SI estamos en el nodo MAX
             while(!(hijo == actual)){   //Cuando ha explorado todos los hijos vuelve al padre
 
-                branchVal = Poda_AlfaBeta(actual,jugador,profundidad+1,PROFUNDIDADMAX,last_c_piece,last_id_piece,last_dice,alpha,beta, ValoracionTest);
+                branchVal = Poda_AlfaBeta(hijo,jugador,profundidad+1,PROFUNDIDADMAX,last_c_piece,last_id_piece,last_dice,alpha,beta, ValoracionTest);
 
                 if(branchVal > alpha){
                     alpha = branchVal;
@@ -232,9 +232,9 @@ double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundid
                 }
 
                 if(alpha >= beta){
-                    break;
+                    return beta;
                 }
-                hijo = actual.generateNextMoveDescending(c_piece,id_piece,dice);
+                hijo = actual.generateNextMoveDescending(last_c_piece,last_id_piece,last_dice);
             }
 
             return alpha;
@@ -242,17 +242,17 @@ double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundid
         else{   //Nodo min
             while(!(hijo == actual)){
 
-                branchVal = Poda_AlfaBeta(actual,jugador,profundidad+1,PROFUNDIDADMAX,last_c_piece,last_id_piece,last_dice,alpha,beta, ValoracionTest);
+                branchVal = Poda_AlfaBeta(hijo,jugador,profundidad+1,PROFUNDIDADMAX,last_c_piece,last_id_piece,last_dice,alpha,beta, ValoracionTest);
 
                 if(branchVal < beta){
                     beta = branchVal;
                 }
 
                 if(alpha >= beta){
-                    break;
+                    return alpha;
                 }
 
-                hijo = actual.generateNextMoveDescending(c_piece,id_piece,id_piece);
+                hijo = actual.generateNextMoveDescending(last_c_piece,last_id_piece,last_dice);
 
             }
             return beta;
