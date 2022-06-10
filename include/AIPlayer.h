@@ -67,6 +67,13 @@ class AIPlayer: public Player{
          */
         inline virtual bool canThink() const{return true;}
 
+
+        /**
+         * @brief Propuesta de declaración de la función poda alfa-beta.
+         * La propuesta es solo sugerencia, los parámetros de la declaración podrían variar.
+         */
+        static double Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int PROFUNDIDADMAX, color &c_piece, int &id_piece, int &dice, double alpha, double beta, double (*heuristic)(const Parchis &, int));
+
         /**
          * @brief Heurística de prueba para validar el algoritmo de búsqueda.
          * 
@@ -84,11 +91,5 @@ class AIPlayer: public Player{
          * @return double 
          */
         static double Heuristica1(const Parchis &estado, int jugador);
-
-        /**
-         * @brief Propuesta de declaración de la función poda alfa-beta.
-         * La propuesta es solo sugerencia, los parámetros de la declaración podrían variar.
-         */
-        static double Poda_AlfaBeta(const Parchis &actual, int jugador, int profundidad, int PROFUNDIDADMAX, color &c_piece, int &id_piece, int &dice, double alpha, double beta, double (*heuristic)(const Parchis &, int));
 };
 #endif
