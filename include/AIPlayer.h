@@ -91,5 +91,7 @@ class AIPlayer: public Player{
          * @return double 
          */
         static double Heuristica1(const Parchis &estado, int jugador);
+
+        static double Heuristica2(const Parchis &estado, int jugador);
 };
 #endif
