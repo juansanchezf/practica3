@@ -232,7 +232,7 @@ double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundid
                 }
 
                 if(alpha >= beta){
-                    return beta;
+                    break;
                 }
                 hijo = actual.generateNextMoveDescending(last_c_piece,last_id_piece,last_dice);
             }
@@ -249,7 +249,7 @@ double AIPlayer::Poda_AlfaBeta(const Parchis &actual, int jugador, int profundid
                 }
 
                 if(alpha >= beta){
-                    return alpha;
+                    break;
                 }
 
                 hijo = actual.generateNextMoveDescending(last_c_piece,last_id_piece,last_dice);
@@ -412,7 +412,6 @@ double AIPlayer::Heuristica1(const Parchis &estado, int jugador)
             }
             else
                 puntuacion_oponente+=500;
-            
             
         }
 
